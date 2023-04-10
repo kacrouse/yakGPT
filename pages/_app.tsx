@@ -45,10 +45,11 @@ export default function App(props: AppProps) {
   return (
     <>
       <Head>
-        <title>YakGPT</title>
+        <title>GoatGPT</title>
         <meta name="description" content="A new ChatGPT UI" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/favicon.ico" />
+        {/* <link rel="icon" href="/favicon.ico" /> */}
+        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐐</text></svg>"/>
       </Head>
       <ColorSchemeProvider
         colorScheme={colorScheme}
@@ -64,16 +65,16 @@ export default function App(props: AppProps) {
             colors: {
               // https://smart-swatch.netlify.app/#5E6AD2
               bluu: [
-                "#e8edff",
-                "#c2c8f3",
-                "#9aa3e5",
-                "#727ed9",
-                "#4c59cd",
-                "#3240b3",
-                "#26318d",
-                "#1a2366",
-                "#0e1540",
-                "#04061b",
+                "#e8fae4",
+                "#cbecc3",
+                "#aedd9f",
+                "#92d07b",
+                "#78c256",
+                "#57a93d",
+                "#3d832e",
+                "#265e20",
+                "#113910",
+                "#001504",
               ],
               // https://smart-swatch.netlify.app/#2A2D3D
               dark: [

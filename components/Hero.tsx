@@ -80,7 +80,7 @@ export default function Hero() {
         <div className={classes.inner}>
           <div className={classes.content}>
             <Title className={classes.title}>
-              <span className={classes.highlight}>YakGPT</span>
+              <span className={classes.highlight}>GoatGPT 🐐</span>
             </Title>
             <Text color="dimmed" mt="md">
               A simple, locally running ChatGPT UI.
@@ -121,7 +121,7 @@ export default function Hero() {
               >
                 Enter API Key
               </Button>
-              <Button
+              {/* <Button
                 component="a"
                 href="https://github.com/yakGPT/yakGPT"
                 variant="default"
@@ -131,7 +131,7 @@ export default function Hero() {
                 leftIcon={<IconBrandGithub size={20} />}
               >
                 Source Code
-              </Button>
+              </Button> */}
             </Group>
           </div>
         </div>
