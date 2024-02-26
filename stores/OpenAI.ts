@@ -1,3 +1,4 @@
+import _ from "lodash";
 import { IncomingMessage } from "http";
 import https from "https";
 import { Message, truncateMessages, countTokens } from "./Message";
@@ -118,7 +119,9 @@ export async function streamCompletion(
   apiKey: string,
   abortController?: AbortController,
   callback?: ((res: IncomingMessage) => void) | undefined,
-  endCallback?: ((tokensUsed: number) => void) | undefined,
+  endCallback?:
+    | ((promptTokensUsed: number, completionTokensUsed: number) => void)
+    | undefined,
   errorCallback?: ((res: IncomingMessage, body: string) => void) | undefined
 ) {
   const modelInfo = getModelInfo(params.model);
@@ -151,7 +154,7 @@ export async function streamCompletion(
     res.on("data", (chunk) => {
       if (abortController?.signal.aborted) {
         res.destroy();
-        endCallback?.(0);
+        endCallback?.(0, 0);
         return;
       }
 
@@ -159,7 +162,7 @@ export async function streamCompletion(
       const allMessages = chunk.toString().split("\n\n");
       for (const message of allMessages) {
         // Remove first 5 characters ("data:") of response
-        const cleaned = message.toString().slice(5);
+        const cleaned = message.toString().trim().slice(5);
 
         if (!cleaned || cleaned === " [DONE]") {
           return;
@@ -184,11 +187,19 @@ export async function streamCompletion(
     });
 
     res.on("end", () => {
-      const tokensUsed =
-        countTokens(submitMessages.map((m) => m.content).join("\n")) +
-        countTokens(buffer);
+      const [loadingMessages, loadedMessages] = _.partition(
+        submitMessages,
+        "loading"
+      );
+      const promptTokensUsed = countTokens(
+        loadedMessages.map((m) => m.content).join("\n")
+      );
 
-      endCallback?.(tokensUsed);
+      const completionTokensUsed = countTokens(
+        loadingMessages.map((m) => m.content).join("\n") + buffer
+      );
+
+      endCallback?.(promptTokensUsed, completionTokensUsed);
     });
   };
 
@@ -199,4 +210,52 @@ export async function streamCompletion(
     successCallback,
     errorCallback
   );
+}
+
+export const OPENAI_TTS_VOICES = [
+  "alloy",
+  "echo",
+  "fable",
+  "onyx",
+  "nova",
+  "shimmer"
+] as const;
+
+export const validateVoice = (voice: any): voice is typeof OPENAI_TTS_VOICES[number] => {
+  if (!OPENAI_TTS_VOICES.includes(voice)) {
+    return false;
+  }
+  return true;
+}
+
+export async function genAudio({
+  text,
+  key,
+  voice,
+  model
+}: {
+  text: string;
+  key: string;
+  voice?: string;
+  model?: string;
+}): Promise<string | null> {
+  if (!voice || !model) {
+    throw new Error("Missing voice or model");
+  }
+  const body = JSON.stringify({
+    model,
+    input: text,
+    voice,
+    response_format: 'mp3',
+  });
+  const res = await fetch("https://api.openai.com/v1/audio/speech", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${key}`,
+    },
+    body
+  });
+
+  return URL.createObjectURL(await res.blob());
 }

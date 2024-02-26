@@ -4,6 +4,7 @@ import { persist } from "zustand/middleware";
 import { Chat } from "./Chat";
 import { SpeechRecognizer } from "microsoft-cognitiveservices-speech-sdk";
 import type { AudioChunk } from "./PlayerActions";
+import { OPENAI_TTS_VOICES } from "./OpenAI";
 
 export type APIState = "idle" | "loading" | "error";
 export type AudioState = "idle" | "recording" | "transcribing" | "processing";
@@ -44,6 +45,9 @@ interface SettingsForm {
   auto_detect_language: boolean;
   spoken_language: string;
   spoken_language_code: string;
+  // OpenAI TTS
+  voice_id_openai: string;
+  tts_model_openai: string;
   // ElevenLabs
   voice_id: string;
   // Azure
@@ -52,6 +56,7 @@ interface SettingsForm {
   spoken_language_azure: string;
   spoken_language_code_azure: string;
   spoken_language_style: string;
+  submit_debounce_ms: number;
 }
 
 export const defaultSettings = {
@@ -69,6 +74,9 @@ export const defaultSettings = {
   auto_detect_language: false,
   spoken_language: "English (en)",
   spoken_language_code: "en",
+  // OpenAI TTS
+  voice_id_openai: OPENAI_TTS_VOICES[0],
+  tts_model_openai: "tts-1",
   // ElevenLabs
   voice_id: "21m00Tcm4TlvDq8ikWAM",
   // Azure
@@ -77,6 +85,7 @@ export const defaultSettings = {
   spoken_language_azure: "English (US)",
   spoken_language_code_azure: "en-US",
   spoken_language_style: "friendly",
+  submit_debounce_ms: 0,
 };
 
 export interface ChatState {
